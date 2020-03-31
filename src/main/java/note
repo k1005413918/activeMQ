@@ -1,0 +1,64 @@
+topic跟queque区别
+    工作模式       订阅发布 负载均衡
+    状态          无       会保存在服务器文件或db中
+    传递完整性     没有订阅者消息丢弃 不会丢弃
+    处理效率       消费者增多复制变慢 不会变慢
+
+MQ 消息中间件 ActiveMQ
+
+	种类：kafka，rabbit，rocket，active apache的
+	技术维度：api发送接收，高可用，集群容错配置，持久化，延时发送定时投递，签收机制，Spring整合
+	优势目的：解耦，削峰，异步
+
+	安装：
+		下载apache-activemq-5.15.12-bin.tar.gz放到/opt
+		解压缩tar -zxvf
+		复制到/myactiveMQ
+		cd 到bin下 普通启动 ./activemq start
+		默认服务端口61616	lsof -i:61616
+			列出所有的网络连接 lsof -i
+			列出所有tcp 网络连接信息 lsof  -i tcp
+			列出谁在使用某个端口 lsof -i :3306
+			ps -ef|grep activemq
+			netstat -anp|grep 61616
+		 ./activemq stop 关闭
+		 ./activemq start > /myactiveMQ/run_activemq.log 带日志启动  >覆盖，>>追加
+		 http://115.239.255.3:8161/ 	前台页面 up都是admin	注意开放安全组端口
+
+JavaEE 一套组件规范13个
+    其中有servlet，JMS（Java message service）,xml,jsp,JTA,JTS,事务api服务
+        EJB,JDBC,JNDI命名目录接口,RMI远程方法调用，mail，jaf
+
+JMS 两个应用程序异步通讯的api
+    四大元素：provider中间件，生产者，消费者，消息
+        消息的构成比较复杂：消息头，消息属性，消息体
+            1.消息头： 消息.setJMS...各种属性，有对应的get方法；生产者.send重载可设置一些属性
+            .setJMSMessageID,设置唯一识别码。还有优先级，持久化，过期时间等
+            2.消息体：5种格式：Text 字符串,Map k字符串v,Bytes二进制数组,Stream流,Object可序列化对象 。发送接收类型必须一样
+            前两个涵盖95%；session.creatMapMessage ;map.setString(k,v)
+            3.消息属性：对消息头的属性的补充拓展 ; 属性名，属性值 对的形式; 用于识别去重标注等
+            msg.setStringProperty(k,v)
+    可靠性： 持久persistent
+                队列：messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
+                    持久化 ，服务器宕机重启消息在，3 0 0 0 ，在未处理队列；
+                    NON_ 非持久化，服务器宕机重启消息不在
+                    默认是持久化的，考虑可靠性
+                主题：持久化比较麻烦 TopicSubscriber
+
+            事务  事务偏生产者，签收偏消费者
+                connection.createSession(true
+                    send之后，最后需要commit提交才能发送
+                    session.commit session.rollback
+                    批处理一次性全部成功或者失败，有异常回滚
+                    消费者的事务true，没有commit会重复消费，
+            签收
+                没事务的签收 Session.AUTO_ACKNOWLEDGE 4种签收，手动自动多，允许重复签收
+                手动签收需要对每一条消息进行ack方法签收，不然会重复消费
+                有事务的签收 消费者开启事务跟手动签收，会被自动签收的，不会重复；
+                            事务没commit手动签收了也会重复消费
+
+    Broker  嵌入Java代码启动本机的ActiveMQ实例
+            pom依赖
+
+
+
